@@ -72,7 +72,7 @@ else CLUSTER="$IP"; fi
 FILE="$(mktemp)"
 #FILE="/tmp/kubeconf"
 scp "${USER}@${IP}:~/.kube/config" "$FILE" || \
-	echo "Couldn't scp ~/.kube/config from remote to local machine - exiting..." && exit 1
+	echo "Couldn't scp ~/.kube/config from remote to local machine - exiting..."
 
 cert_auth_data="$(rg -o 'certificate-authority-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
 client_cert_data="$(rg -o 'client-certificate-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
@@ -81,7 +81,7 @@ client_key_data="$(rg -o 'client-key-data:\s*(\S+)' "$FILE" | awk '{ print $2 }'
 case "$OPERATION" in
 	"add")
 		kubectl config set clusters."$CLUSTER".certificate-authority-data "$cert_auth_data"
-		kubectl config set clusters."$CLUSTER".server "$IP:$PORT"
+		kubectl config set clusters."$CLUSTER".server "https://$IP:$PORT"
 		kubectl config set users."$CLUSTER-user".client-certificate-data "$client_cert_data"
 		kubectl config set users."$CLUSTER-user".client-key-data "$client_key_data"
 		kubectl config set contexts."$CLUSTER-context".cluster "$CLUSTER"
