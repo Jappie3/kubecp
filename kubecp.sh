@@ -92,7 +92,7 @@ case "$OPERATION" in
 		kubectl config delete-cluster "$CLUSTER"
 		kubectl config delete-context "$CLUSTER-context"
 		kubectl config delete-user "$CLUSTER-user"
-		kubectl config use-context "$CLUSTER-context"
+		kubectl config unset current-context
 		;;
 	*)
 		echo "Invalid operation set - exiting..."
