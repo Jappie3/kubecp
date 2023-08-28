@@ -1,0 +1,3 @@
+- Add & remove kubernetes clusters to / from `~/.kube/config`
+- Run `./kubecp.sh --help` for the options
+    - Example: `./kubecp.sh -a root@127.0.0.1` -> tries to fetch `~/.kube/config` from 127.0.0.1 & adds all the necessary options to your local `~/.kube/config`
