@@ -54,15 +54,25 @@ while true; do
 	esac
 done
 
-# get user
-USER="$(echo "$1" | rg -o '.*@')"
-USER="${USER%?}" # remove trailing @
-# default to root if only IP was given
-if [[ -z "$USER" ]]; then USER="root"; fi
-
-IP="$1"
+USER=
+IP=
 PORT=6443
-shift
+
+# get user
+# remove @ and everything after it
+USER="${1%%@*}"
+
+if [[ -z "$USER" ]]; then
+	# user isn't set (only an IP was passed), default to root & set IP
+	USER="root"
+	IP="$1"
+	shift
+else
+	# user is set, get IP
+	# remove @ and everything before it
+	IP="${1#*@}"
+	shift
+fi
 
 CLUSTER=
 # if no cluster name passed -> default to IP
@@ -71,7 +81,7 @@ else CLUSTER="$IP"; fi
 
 FILE="$(mktemp)"
 
-if ! scp "${user}@${IP}:~/.kube/config" "$FILE"; then
+if ! scp "${USER}@${IP}:~/.kube/config" "$FILE"; then
 	echo "Couldn't scp ~/.kube/config from remote to local machine - exiting..."
 	exit 1
 fi
