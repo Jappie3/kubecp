@@ -70,9 +70,11 @@ if [[ -n "$1" ]]; then CLUSTER="$1";
 else CLUSTER="$IP"; fi
 
 FILE="$(mktemp)"
-#FILE="/tmp/kubeconf"
-scp "${USER}@${IP}:~/.kube/config" "$FILE" || \
+
+if ! scp "${user}@${IP}:~/.kube/config" "$FILE"; then
 	echo "Couldn't scp ~/.kube/config from remote to local machine - exiting..."
+	exit 1
+fi
 
 cert_auth_data="$(rg -o 'certificate-authority-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
 client_cert_data="$(rg -o 'client-certificate-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
