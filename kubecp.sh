@@ -106,7 +106,7 @@ else CLUSTER="$IP"; fi
 FILE="$(mktemp)"
 
 # check default location for K3s
-if scp "${USER}@${IP}:~/.kube/config" "$FILE" > /dev/null 2>&1; then
+if scp "${USER}@${IP}:~/.kube/config" "$FILE" &> /dev/null; then
 	echo "Found config!"
 
 	cert_auth_data="$(rg -o 'certificate-authority-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
@@ -114,7 +114,7 @@ if scp "${USER}@${IP}:~/.kube/config" "$FILE" > /dev/null 2>&1; then
 	client_key_data="$(rg -o 'client-key-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
 
 # check default location for K8s on NixOS
-elif scp "${USER}@${IP}:/etc/kubernetes/cluster-admin.kubeconfig" "$FILE" > /dev/null 2>&1; then
+elif scp "${USER}@${IP}:/etc/kubernetes/cluster-admin.kubeconfig" "$FILE" &> /dev/null; then
 	echo "Found config!"
 
 	cert_auth_file=$(mktemp)
