@@ -7,15 +7,14 @@ printhelp () {
 	echo "  -a | --add      add cluster to ~/.kube/config"
 	echo "  -r | --remove   remove cluster from ~/.kube/config"
 	echo "  -h | --help     show this menu"
-	echo
+	echo ""
 	echo "Positional arguments:"
 	echo "  USER            user with which to connect, defaults to root"
-	echo "  CLUSTER-NAME    name of cluster (optional, defaults to IP-cluster)"
-	echo "  IP              IP of the server where there is a ~/.kube/config"
-	echo "                  file for the cluster you want to add"
+	echo "  CLUSTER-NAME    name of the cluster to use in ~/.kube/config"
+	echo "                  (optional, defaults to <ip>-cluster)"
+	echo "  IP              IP or hostname corresponding to the master of the cluster"
 	echo ""
 	echo "Dependencies: scp, rg, awk, kubectl"
-
 }
 
 invalid-combo () { echo "Invalid combination of arguments - exiting..."; }
