@@ -69,11 +69,11 @@ USER=
 IP=
 PORT=6443
 
-# get user
 # remove @ and everything after it
+# no user present -> user is set to $1
 USER="${1%%@*}"
 
-if [[ -z "$USER" ]]; then
+if [[ "$USER" == "$1" ]]; then
 	# user isn't set (only an IP was passed), default to root & set IP
 	USER="root"
 	IP="$1"
