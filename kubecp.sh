@@ -92,14 +92,42 @@ else CLUSTER="$IP"; fi
 
 FILE="$(mktemp)"
 
-if ! scp "${USER}@${IP}:~/.kube/config" "$FILE"; then
-	echo "Couldn't scp ~/.kube/config from remote to local machine - exiting..."
+# check default location for K3s
+if scp "${USER}@${IP}:~/.kube/config" "$FILE" > /dev/null 2>&1; then
+	echo "Found config!"
+
+	cert_auth_data="$(rg -o 'certificate-authority-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
+	client_cert_data="$(rg -o 'client-certificate-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
+	client_key_data="$(rg -o 'client-key-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
+
+# check default location for K8s on NixOS
+elif scp "${USER}@${IP}:/etc/kubernetes/cluster-admin.kubeconfig" "$FILE" > /dev/null 2>&1; then
+	echo "Found config!"
+
+	cert_auth_file=$(mktemp)
+	scp "${USER}@${IP}:$(jq -r '.clusters[0].cluster."certificate-authority"' $FILE)" $cert_auth_file
+	cert_auth_data=$(cat $cert_auth_file | base64)
+
+	client_cert_file=$(mktemp)
+	scp "${USER}@${IP}:$(jq -r '.users[0].user."client-certificate"' $FILE)" $client_cert_file
+	client_cert_data=$(cat $client_cert_file | base64)
+
+	client_key_file=$(mktemp)
+	scp "${USER}@${IP}:$(jq -r '.users[0].user."client-key"' $FILE)" $client_key_file
+	client_key_data=$(cat $client_key_file | base64)
+
+	rm $cert_auth_file $client_cert_file $client_key_file
+
+else
+	echo "Couldn't find kubeconfig on the remote machine - exiting..."
 	exit 1
 fi
 
-cert_auth_data="$(rg -o 'certificate-authority-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
-client_cert_data="$(rg -o 'client-certificate-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
-client_key_data="$(rg -o 'client-key-data:\s*(\S+)' "$FILE" | awk '{ print $2 }')"
+# check if all variables are set & return a vague error if one isn't set
+if [[ ${CLUSTER:-} == "" || ${IP:-} == "" || ${PORT:-} == "" || ${cert_auth_data:-} == "" || ${client_cert_data:-} == "" || ${client_key_data:-} == "" ]]; then
+	echo -e "Error: one of the variables was unset or set to null.\nUse --help for a list of options & arguments."
+	exit 1
+fi
 
 case "$OPERATION" in
 	"add")
