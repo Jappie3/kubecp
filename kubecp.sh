@@ -27,6 +27,12 @@ eval set -- "$OPTIONS"
 
 OPERATION=
 
+# make sure an argument was passed
+if [[ $# -lt 2 ]]; then
+	echo -e "Error: please provide at least one argument\nUse --help for a list of options & arguments."
+	exit 1
+fi
+
 while true; do
 	case "$1" in
 		"-h" | "--help")
@@ -53,6 +59,11 @@ while true; do
 			;;
 	esac
 done
+
+# make sure an argument was passed after filtering out the options (user@ip)
+if [[ ${1:-} == "" ]]; then
+	echo -e "Error: no argument was passed\nUse --help for a list of options & arguments."	
+fi
 
 USER=
 IP=
