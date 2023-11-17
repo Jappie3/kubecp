@@ -22,6 +22,19 @@ invalid-combo () { echo "Invalid combination of arguments - exiting..."; }
 invalid-arg () { echo "Invalid argument: "$1" - exiting..."; }
 
 
+is_installed() {
+	if ! command -v "$1" &> /dev/null; then
+		echo "Error: $1 was not found, is it installed?"
+		exit 1
+	fi
+}
+
+is_installed "scp"
+is_installed "rg"
+is_installed "awk"
+is_installed "kubectl"
+
+
 OPTIONS=$(getopt -o arh --long add,remove,help -n "$0" -- "$@")
 eval set -- "$OPTIONS"
 
